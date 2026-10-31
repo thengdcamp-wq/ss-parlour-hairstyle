@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S&S Hairstyle Try-On</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101114;color:white;font-family:Arial,sans-serif}
+.container{max-width:480px;margin:auto;padding:20px}
+h1{text-align:center;color:#ffc928;font-size:25px}
+p{text-align:center;color:#bbb;font-size:14px}
+.panel{background:#202126;padding:16px;border-radius:16px;margin-top:18px}
+button,select,input{width:100%;padding:13px;margin-top:10px;border:0;border-radius:9px;font-size:15px}
+button{background:#ffc928;color:#171717;font-weight:bold}
+select{background:#303138;color:white}
+canvas{width:100%;background:#080808;border-radius:12px;margin-top:15px}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{font-size:12px;color:#ccc;display:block;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>S&S Hairstyle Studio</h1>
+<p>Upload your photo and try a new hairstyle</p>
+
+<div class="panel">
+<label>Choose Your Photo</label>
+<input type="file" id="photo" accept="image/*">
+
+<label>Select Hairstyle</label>
+<select id="style">
+<option value="low-fade">Low Fade</option>
+<option value="mid-fade">Mid Fade</option>
+<option value="high-fade">High Fade</option>
+<option value="textured-crop">Textured Crop</option>
+<option value="modern-quiff">Modern Quiff</option>
+<option value="slick-back">Slick Back</option>
+<option value="crew-cut">Crew Cut</option>
+<option value="buzz-cut">Buzz Cut</option>
+<option value="classic-side-part">Classic Side Part</option>
+<option value="modern-mullet">Modern Mullet</option>
+</select>
+
+<div class="controls">
+<div>
+<label>Hair Size</label>
+<input type="range" id="scale" min="20" max="180" value="100">
+</div>
+<div>
+<label>Vertical Position</label>
+<input type="range" id="position" min="-100" max="100" value="0">
+</div>
+</div>
+
+<button id="download">Download Preview</button>
+<canvas id="preview" width="600" height="750"></canvas>
+<p id="status">Please upload a photo to begin.</p>
+</div>
+</div>
+
+<script>
+const photo=document.getElementById('photo');
+const canvas=document.getElementById('preview');
+const ctx=canvas.getContext('2d');
+const status=document.getElementById('status');
+let uploadedImage=null;
+
+function draw(){
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ ctx.fillStyle="#080808";
+ ctx.fillRect(0,0,canvas.width,canvas.height);
+
+ if(!uploadedImage){
+  status.textContent="Please upload a photo to begin.";
+  return;
+ }
+
+ let ratio=Math.min(600/uploadedImage.width,750/uploadedImage.height);
+ let w=uploadedImage.width*ratio;
+ let h=uploadedImage.height*ratio;
+ let x=(600-w)/2;
+ let y=(750-h)/2;
+
+ ctx.drawImage(uploadedImage,x,y,w,h);
+ status.textContent="Photo loaded. Hairstyle PNG overlay will be added in the next step.";
+}
+
+photo.addEventListener('change',e=>{
+ const file=e.target.files[0];
+ if(!file)return;
+ uploadedImage=new Image();
+ uploadedImage.onload=draw;
+ uploadedImage.src=URL.createObjectURL(file);
+});
+
+document.getElementById('download').addEventListener('click',()=>{
+ if(!uploadedImage){alert("Please upload a photo first.");return;}
+ const link=document.createElement('a');
+ link.download="SS-Hairstyle-Preview.png";
+ link.href=canvas.toDataURL("image/png");
+ link.click();
+});
+
+document.getElementById('style').addEventListener('change',draw);
+document.getElementById('scale').addEventListener('input',draw);
+document.getElementById('position').addEventListener('input',draw);
+</script>
+</body>
+</html>
